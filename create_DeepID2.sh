@@ -3,7 +3,7 @@
 set -e
 
 EXAMPLE=./examples
-DATA=./CASIA/
+DATA=./lfw-deepfunneled/
 TOOLS=/opt/caffe/build/tools
 
 RESIZE_HEIGHT=55
