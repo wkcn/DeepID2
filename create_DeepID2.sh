@@ -2,9 +2,9 @@
 # This script converts the CASIA-maxpy-clean into lmdb format.
 set -e
 
-EXAMPLE=examples/deepid2
-DATA=data/CASIA/
-TOOLS=build/tools
+EXAMPLE=./examples
+DATA=./CASIA/
+TOOLS=/opt/caffe/build/tools
 
 RESIZE_HEIGHT=55
 RESIZE_WIDTH=47
@@ -12,8 +12,8 @@ RESIZE_WIDTH=47
 echo "creating lmdb..."
 
 rm -rf $EXAMPLE/DeepID2_train_lmdb
-
 rm -rf $EXAMPLE/DeepID2_test_lmdb
+mkdir -p $EXAMPLE
 
 
 $TOOLS/convert_imageset \

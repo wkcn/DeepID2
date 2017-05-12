@@ -1,5 +1,5 @@
 
-net: "examples/deepid2/DeepID2_train_test.prototxt"
+net: "DeepID2_train_test.prototxt"
 test_iter: 1000
 test_interval: 1000
 base_lr: 0.01
@@ -11,5 +11,5 @@ max_iter: 600000
 momentum: 0.9
 weight_decay: 0.0005
 snapshot: 10000
-snapshot_prefix: "examples/deepid2/deepid2"
+snapshot_prefix: "examples/"
 solver_mode: GPU

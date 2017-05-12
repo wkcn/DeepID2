@@ -7,13 +7,13 @@ layer {
 	type: "Data"
 
 	data_param {
-		source: "examples/deepid2/DeepID2_train_lmdb"
+		source: "examples/DeepID2_train_lmdb"
     	backend: LMDB
     	batch_size: 64
   	}
 
 	transform_param {
-		mean_file: "examples/deepid2/DeepID2_mean.proto"
+		mean_file: "examples/DeepID2_mean.proto"
 	}
 
 	include {
@@ -28,13 +28,13 @@ layer {
 	type: "Data"
 
 	data_param {
-		source: "examples/deepid2/DeepID2_test_lmdb"
+		source: "examples/DeepID2_test_lmdb"
     	backend: LMDB
     	batch_size: 64
 	}
 
 	transform_param {
-		mean_file: "examples/deepid2/DeepID2_mean.proto"
+		mean_file: "examples/DeepID2_mean.proto"
 	}
 
 	include {
@@ -77,14 +77,9 @@ layer {
 
 layer {
 	name: "relu1"
-	type: "Insanity"
+	type: "ReLU"
 	bottom: "conv1"
 	top: "conv1"
-
-	insanity_param {
-		lb: 3
-		ub: 5
-	}
 }
 
 layer {
@@ -130,14 +125,10 @@ layer {
 
 layer {
 	name: "relu2"
-	type: "Insanity"
+	type: "ReLU"
 	bottom: "conv2"
 	top: "conv2"
 
-	insanity_param {
-		lb: 3
-		ub: 8
-	}
 }
 layer {
   name: "pool2"

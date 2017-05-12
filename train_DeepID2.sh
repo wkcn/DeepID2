@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 set -e
 
-TOOLS=./build/tools
+TOOLS=/opt/caffe/build/tools
 
-$TOOLS/caffe train --solver=examples/deepid2/DeepID2_solver.prototxt $@
+$TOOLS/caffe train --solver=./DeepID2_solver.prototxt $@
