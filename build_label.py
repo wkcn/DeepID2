@@ -5,21 +5,22 @@ DATASET = "./lfw-deepfunneled"
 TRAIN_TXT = "train.txt" 
 VAL_TXT = "val.txt" 
 PIC_FORMATS = ["jpg", "png", "bmp", "jpeg"]
-RATIO = 0.7
-PERSONS = {}
+RATIO = 0.8
+MIN_PIC_NUM = 5
+PERSON_ID = 0
 
 def get_data(person_name):
-    if person_name not in PERSONS:
-        pid = len(PERSONS)
-        PERSONS[person_name] = pid
-    else:
-        pid = PERSONS[person_name]
-        print ("duplication!")
+    global PERSON_ID
+    pid = PERSON_ID
     res = []
     dir_name = "%s/" % person_name
     for name in os.listdir(DATASET + "/" + dir_name):
         if name.split(".")[-1] in PIC_FORMATS:
             res.append((pid, dir_name + name))
+    if len(res) < MIN_PIC_NUM:
+        pid -= 1
+        return []
+    PERSON_ID += 1
     return res
 
 def split_data(data):
@@ -37,8 +38,9 @@ val = []
 people = 0
 for i in os.listdir(DATASET):
     try:
-        people += 1
         train_p,val_p = split_data(get_data(i))
+        if (len(val_p)):
+            people += 1
         train.extend(train_p)
         val.extend(val_p)
     except:
@@ -46,5 +48,7 @@ for i in os.listdir(DATASET):
 
 print ("People: %d" % people)
 print (len(train), len(val))
+random.shuffle(train)
+random.shuffle(val)
 write_file(train, TRAIN_TXT)
 write_file(val, VAL_TXT)
