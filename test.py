@@ -12,13 +12,13 @@ import matplotlib.pyplot as plt
 CAFFE_HOME = "/opt/caffe/"
 RESULT_DIR = "./result/"
 
-deploy = "./proto/cifar10_quick.prototxt"
-caffe_model = CAFFE_HOME + "/examples/cifar10/cifar10_quick_iter_5000.caffemodel.h5" 
+deploy = "./DeepID2_ok.prototxt"
+caffe_model = "./model/tntn_iter_600000.caffemodel" 
 train_db = "./examples/DeepID2_train_lmdb" 
 test_db = "./examples/DeepID2_test_lmdb" 
 mean_proto = "./examples/DeepID2_mean.proto" 
-#mean_npy = "./mean.npy"
-#mean_pic = np.load(mean_npy)
+mean_npy = "./mean.npy"
+mean_pic = np.load(mean_npy)
 
 def read_db(db_name):
     lmdb_env = lmdb.open(db_name)
@@ -33,19 +33,34 @@ def read_db(db_name):
         datum.ParseFromString(value)
         label = datum.label
         data = caffe.io.datum_to_array(datum)
-        data = data.swapaxes(0, 2).swapaxes(0, 1)
+        #data = data.swapaxes(0, 2).swapaxes(0, 1)
         X.append(data)
         y.append(label)
         if label not in cnts:
             cnts[label] = 0
         cnts[label] += 1
-        data[:,:,[0,1,2]] = data[:,:,[2,1,0]]
-        print (label)
-        plt.imshow(data)
-        plt.show()
+        #data[:,:,[0,1,2]] = data[:,:,[2,1,0]]
+        #plt.imshow(data)
+        #plt.show()
     return X, np.array(y), cnts
 
 testX, testy, cnts = read_db(test_db)
-#testX, testy, cnts = read_db(train_db)
-print ("#train set: ", len(testX))
+trainX, trainy, cnts = read_db(train_db)
+print ("#train set: ", len(trainX))
+print ("#test set: ", len(testX))
 print ("the size of sample:", testX[0].shape)
+
+# Load model and network
+nn = caffe.Net(deploy, caffe_model, caffe.TEST) 
+
+n = len(testX)
+pre = np.zeros(testy.shape)
+print ("N = %d" % n)
+for i in range(n):
+    nn.blobs["data"].data[...] = testX[i] - mean_pic 
+    nn.forward()
+    prob = nn.blobs["prob"].data
+    pre[i] = prob.argmax() 
+    print ("%d / %d" % (i + 1, n), testy[i] == pre[i])
+right = np.sum(pre == testy) 
+print ("Accuracy: %f" % (right * 1.0 / n))
