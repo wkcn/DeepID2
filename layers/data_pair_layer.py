@@ -22,8 +22,8 @@ def crop_img(im, tsize = (128,128), crop_min_ratio = 0.5, gray_ratio = 0.05):
     if random.random() > 0.5:
         # horizontal flipping
         nim = nim[:,::-1,:]
-    if random.random() < gray_ratio:
-        nim = cv2.cvtColor(cv2.cvtColor(nim, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+    #if random.random() < gray_ratio:
+    #    #nim = cv2.cvtColor(cv2.cvtColor(nim, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
     nim = cv2.resize(nim, tsize)
     return nim
 
@@ -57,7 +57,7 @@ class data_pair_layer(caffe.Layer):
         bin_mean = open(self.mean_file, 'rb').read()
         blob.ParseFromString(bin_mean)
         arr = np.array(caffe.io.blobproto_to_array(blob))
-        self.npy_mean = arr[0]
+        self.npy_mean = arr[0].astype(np.double).swapaxes(0,2)
 
         # Buffer
         self.buffer = [[] for _ in range(self.label_num)]
@@ -66,26 +66,27 @@ class data_pair_layer(caffe.Layer):
         for line in fin.readlines():
             filename, label = line.split(" ")
             im = cv2.imread(os.path.join(self.dir, filename))
-            im = cv2.resize(im, tsize).swapaxes(0,2)
-            me = im - self.npy_mean
+            im = cv2.resize(im, tsize)
+            me = im.astype(np.double) - self.npy_mean
             self.buffer[int(label)].append(me)
     def forward(self, bottom, top):
-        self.ids = []
+        ids = []
         for i in range(self.batch_size // 2):
             if random.random() < self.ratio:
                 # + 
                 t = random.randint(0, self.label_num - 1)
                 e1, e2 = get_rand2(len(self.buffer[t]))
-                self.ids.append((t,e2)) 
+                ids.append((t,e1)) 
+                ids.append((t,e2)) 
             else:
                 t1, t2 = get_rand2(self.label_num)
                 e1 = random.randint(0, len(self.buffer[t1]) - 1)
                 e2 = random.randint(0, len(self.buffer[t2]) - 1)
-                self.ids.append((t1,e1)) 
-                self.ids.append((t2,e2)) 
+                ids.append((t1,e1)) 
+                ids.append((t2,e2)) 
         tsize = (self.rows, self.cols)
-        top[0].data[...] = np.require(map(lambda t : crop_img(self.buffer[t[0]][e[1]], tsize), self.ids))
-        top[1].data[...] = np.require(map(lambda t : t[0], self.ids))
+        top[0].data[...] = np.require(map(lambda t : crop_img(self.buffer[t[0]][t[1]], tsize).swapaxes(0,2), ids))
+        top[1].data[...] = np.require(map(lambda t : t[0], ids)).reshape((self.batch_size, 1))
     def backward(self, bottom, top):
         pass
     def reshape(self, bottom, top):
