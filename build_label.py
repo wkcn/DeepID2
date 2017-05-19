@@ -1,6 +1,7 @@
 import os
 import random
 import math
+import copy
 DATASET = "./lfw-deepfunneled"
 TRAIN_TXT = "train.txt" 
 VAL_TXT = "val.txt" 
@@ -21,7 +22,8 @@ def get_data(person_name):
         pid -= 1
         return []
     PERSON_ID += 1
-    return res
+    random.shuffle(res)
+    return res[:MIN_PIC_NUM]
 
 def split_data(data):
     random.shuffle(data)
@@ -48,7 +50,9 @@ for i in os.listdir(DATASET):
 
 print ("People: %d" % people)
 print (len(train), len(val))
-random.shuffle(train)
-random.shuffle(val)
+rtrain = copy.copy(train)
+for i in range(10):
+    random.shuffle(rtrain)
+    train.extend(rtrain)
 write_file(train, TRAIN_TXT)
 write_file(val, VAL_TXT)

@@ -5,6 +5,7 @@ set -e
 EXAMPLE=./examples
 DATA=./lfw-deepfunneled/
 TOOLS=/opt/caffe/build/tools
+DBTYPE=lmdb
 
 RESIZE_HEIGHT=55
 RESIZE_WIDTH=47
@@ -32,8 +33,8 @@ $TOOLS/convert_imageset \
 
 echo "compute image mean..."
 
-$TOOLS/compute_image_mean $EXAMPLE/DeepID2_train_lmdb \
-  $EXAMPLE/DeepID2_mean.proto
+$TOOLS/compute_image_mean -backend=$DBTYPE $EXAMPLE/DeepID2_train_lmdb \
+  $EXAMPLE/DeepID2_mean.binaryproto
 
 echo "done..."
 

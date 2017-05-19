@@ -9,7 +9,7 @@ layer {
 	data_param {
 		source: "examples/DeepID2_train_lmdb"
     	backend: LMDB
-    	batch_size: 64
+    	batch_size: 128
   	}
 
 	transform_param {
@@ -30,7 +30,7 @@ layer {
 	data_param {
 		source: "examples/DeepID2_test_lmdb"
     	backend: LMDB
-    	batch_size: 64
+    	batch_size: 128
 	}
 
 	transform_param {
@@ -316,7 +316,7 @@ layer {
     decay_mult: 1
   }
   inner_product_param {
-    num_output: 5751
+    num_output: 423
     weight_filler {
       type: "gaussian"
       std: 0.01
