@@ -50,9 +50,11 @@ for i in os.listdir(DATASET):
 
 print ("People: %d" % people)
 print (len(train), len(val))
+'''
 rtrain = copy.copy(train)
 for i in range(10):
     random.shuffle(rtrain)
     train.extend(rtrain)
+'''
 write_file(train, TRAIN_TXT)
 write_file(val, VAL_TXT)

@@ -4,17 +4,13 @@ layer {
 	name: "data"
 	top: "data"
 	top: "label"
-	type: "Data"
+	type: "Python"
 
-	data_param {
-		source: "examples/DeepID2_train_lmdb"
-    	backend: LMDB
-    	batch_size: 128
+	python_param {
+		module: "data_pair_layer"
+		layer: "data_pair_layer"
+		param_str:"{'dir':'lfw-deepfunneled', 'source': 'lfw-deepfunneled/train.txt','batch_size': 64, 'ratio' : 0.5, 'mean_file': 'examples/DeepID2_mean.proto', 'rows':55, 'cols':47, 'label_num':423}"
   	}
-
-	transform_param {
-		mean_file: "examples/DeepID2_mean.proto"
-	}
 
 	include {
 		phase: TRAIN
@@ -25,17 +21,13 @@ layer {
 	name: "data"
 	top: "data"
 	top: "label"
-	type: "Data"
+	type: "Python"
 
-	data_param {
-		source: "examples/DeepID2_test_lmdb"
-    	backend: LMDB
-    	batch_size: 128
-	}
-
-	transform_param {
-		mean_file: "examples/DeepID2_mean.proto"
-	}
+	python_param {
+		module: "data_pair_layer"
+		layer: "data_pair_layer"
+		param_str:"{'dir':'lfw-deepfunneled', 'source': 'lfw-deepfunneled/val.txt','batch_size': 64, 'ratio' : 0.5, 'mean_file': 'examples/DeepID2_mean.proto', 'rows':55, 'cols':47, 'label_num':423}"
+  	}
 
 	include {
 		phase: TEST
