@@ -32,11 +32,32 @@ def split_data(data):
 
 def write_file(data, fn):
     fout = open(DATASET + "/" + fn, "w")
-    for idx, name in data:
+    for (idx, name) in data:
         fout.write("%s %d\n" % (name, idx))
+
+def D(data):
+    data = copy.copy(data)
+    res = []
+    tmp = []
+    for group in data:
+        for i in range(len(group)):
+            u = (i+1) % len(group)
+            res.append(group[i])
+            res.append(group[u])
+            tmp.append(group[i])
+    random.shuffle(tmp)
+    for t in tmp:
+        res.append(t)
+    random.shuffle(tmp)
+    for t in tmp:
+        res.append(t)
+    return res
+
 
 train = []
 val = []
+train_o = []
+val_o = []
 people = 0
 for i in os.listdir(DATASET):
     try:
@@ -45,6 +66,8 @@ for i in os.listdir(DATASET):
             people += 1
         train.extend(train_p)
         val.extend(val_p)
+        train_o.append(train_p)
+        val_o.append(val_p)
     except:
         print ("Ignore: %s" % i)
 
@@ -58,3 +81,5 @@ for i in range(10):
 '''
 write_file(train, TRAIN_TXT)
 write_file(val, VAL_TXT)
+#write_file(D(train_o), TRAIN_TXT)
+#write_file(D(val_o), VAL_TXT)

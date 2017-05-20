@@ -59,6 +59,7 @@ class data_pair_layer(caffe.Layer):
         arr = np.array(caffe.io.blobproto_to_array(blob))
         self.npy_mean = arr[0].astype(np.double).swapaxes(0,2)
 
+        print ("Init Data_Pair_Layer")
         # Buffer
         self.buffer = [[] for _ in range(self.label_num)]
         fin = open(self.source, "r")
@@ -69,8 +70,14 @@ class data_pair_layer(caffe.Layer):
             im = cv2.resize(im, tsize)
             me = im.astype(np.double) - self.npy_mean
             self.buffer[int(label)].append(me)
+        # Check
+        for i in range(self.label_num):
+            if len(self.buffer[i]) == 0:
+                raise Exception("Empty: %d" % i)
+        self.gi = 0
     def forward(self, bottom, top):
         ids = []
+        '''
         for i in range(self.batch_size // 2):
             if random.random() < self.ratio:
                 # + 
@@ -84,6 +91,24 @@ class data_pair_layer(caffe.Layer):
                 e2 = random.randint(0, len(self.buffer[t2]) - 1)
                 ids.append((t1,e1)) 
                 ids.append((t2,e2)) 
+        '''
+        for i in range(self.batch_size // 2):
+            if len(self.buffer[self.gi]) >= 2 and random.random() < self.ratio:
+                # +
+                t = self.gi
+                e1, e2 = get_rand2(len(self.buffer[t]))
+                ids.append((t,e1)) 
+                ids.append((t,e2)) 
+            else:
+                t1 = self.gi
+                t2 = random.randint(0, self.label_num - 1)
+                while t1 == t2:
+                    t2 = random.randint(0, self.label_num - 1)
+                e1 = random.randint(0, len(self.buffer[t1]) - 1)
+                e2 = random.randint(0, len(self.buffer[t2]) - 1)
+                ids.append((t1,e1)) 
+                ids.append((t2,e2))
+            self.gi = (self.gi + 1) % self.label_num 
         tsize = (self.rows, self.cols)
         top[0].data[...] = np.require(map(lambda t : crop_img(self.buffer[t[0]][t[1]], tsize).swapaxes(0,2), ids))
         top[1].data[...] = np.require(map(lambda t : t[0], ids)).reshape((self.batch_size, 1))
